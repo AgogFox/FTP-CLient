@@ -1,6 +1,6 @@
 import socket
 
-s = None
+cmd_sock = None
 host = None
 
 not_need_connection = [
@@ -33,13 +33,13 @@ def print_resp(socket):
     print(socket.recv(1024).decode(), end='')
 
 def close_sock():
-    global s
+    global cmd_sock
     try:
-        s.close()
-        s = None
+        cmd_sock.close()
+        cmd_sock = None
         return
     except:
-        s = None
+        cmd_sock = None
         return
 
 def open_data_conn():
@@ -53,8 +53,8 @@ def open_data_conn():
     port = f"{port:016b}" #convert port number to bianry
     port_1 = int(port[0:8], 2) #first part of the port
     port_2 = int(port[8:16], 2) #second part of the port
-    send_ftp(s, f"PORT {host_part},{port_1},{port_2}")
-    print_resp(s)
+    send_ftp(cmd_sock, f"PORT {host_part},{port_1},{port_2}")
+    print_resp(cmd_sock)
     return data_sock
 
 
@@ -66,8 +66,8 @@ def binary():
 
 def bye():
     try:
-        send_ftp(s, "QUIT")
-        print_resp(s)
+        send_ftp(cmd_sock, "QUIT")
+        print_resp(cmd_sock)
         close_sock()
     except:
         pass
@@ -79,12 +79,12 @@ def cd(remote_dir):
 
 def close():
     try:
-        send_ftp(s, "QUIT")
+        send_ftp(cmd_sock, "QUIT")
     except:
         print("Not connected.")
         return;
 
-    print_resp(s)
+    print_resp(cmd_sock)
     close_sock()
     return
 
@@ -95,14 +95,14 @@ def get(*args):
     return
 
 def ls(remote_dir = ""):
-    send_ftp(s, f"NLST {remote_dir}")
-    print_resp(s)
+    send_ftp(cmd_sock, f"NLST {remote_dir}")
+    print_resp(cmd_sock)
     return
 
 def open(host_local = None, port = 21):
-    global s
+    global cmd_sock
     global host
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cmd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if not host_local:
         host_local = input("To ")
     
@@ -115,7 +115,7 @@ def open(host_local = None, port = 21):
 
     #attemp establish connection
     try:
-        s.connect((host_local, port))
+        cmd_sock.connect((host_local, port))
     except ConnectionRefusedError:
         print("> ftp: connect :Connection refused")
         close_sock()
@@ -131,16 +131,16 @@ def open(host_local = None, port = 21):
         close_sock()
         return
 
-    print_resp(s)
+    print_resp(cmd_sock)
 
     #login
     user = input(f"User ({host_local}:(none)): ")
-    send_ftp(s, f"USER {user}")
-    print_resp(s)
+    send_ftp(cmd_sock, f"USER {user}")
+    print_resp(cmd_sock)
     password = input("Password: ")
-    s.sendall(f"PASS {password}\r\n".encode())
+    cmd_sock.sendall(f"PASS {password}\r\n".encode())
 
-    login_respond = s.recv(1024).decode()
+    login_respond = cmd_sock.recv(1024).decode()
     respond_code = login_respond.split()[0]
 
     print(login_respond)
@@ -189,7 +189,7 @@ while True:
                 bye()
 
     elif command in need_connection:
-        if not s:
+        if not cmd_sock:
             print("Not connected.")
             continue
 
