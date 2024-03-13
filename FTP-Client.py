@@ -120,15 +120,16 @@ def open(host_local = None, port = 21):
         print("> ftp: connect :Connection refused")
         close_sock()
         return
-    except TimeoutError:
+    except socket.timeout:
         print("> ftp: connect :Connection timed out")
         close_sock()
         return
-    except Exception as e:
-        if type(e).__name__ == "gaierror":
-            print(f"Unknown host {host_local}.")
-        #print(type(e).__name__, e.args)
+    except socket.gaierror:
+        print(f"Unknown host {host_local}.")
         close_sock()
+        return
+    except Exception as e:
+        print(type(e).__name__, e.args)
         return
 
     print_resp(cmd_sock)
