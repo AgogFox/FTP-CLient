@@ -191,7 +191,7 @@ while True:
 
     #input sanitization
     input_list = input_str.split()
-    if not input_list:
+    if not input_list: #check for empty command
         continue
     
     command = input_list[0]
@@ -257,3 +257,7 @@ while True:
     else:
         print("Invalid command.")
 
+
+
+#TODO:
+#   - keep login state
