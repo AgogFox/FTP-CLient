@@ -119,6 +119,11 @@ def ls(remote_dir = ""):
 def open(host_local = None, port = 21):
     global cmd_sock
     global host
+
+    if cmd_sock: #check if already connect
+        print(f"Already connected to {host}, use disconnect first.")
+        return
+
     cmd_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if not host_local:
         host_local = input("To ")
