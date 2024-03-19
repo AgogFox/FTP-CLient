@@ -161,11 +161,9 @@ def open(host_local = None, port = 21):
     login_respond = cmd_sock.recv(1024).decode()
     respond_code = login_respond.split()[0]
 
-    print(login_respond)
-
-    if respond_code == 230:
-        print(login_respond)
-    elif respond_code == 331:
+    if respond_code == "230":
+        print(login_respond, end='')
+    elif respond_code == "331":
         print(login_respond)
         print("Login failed.")
 
@@ -188,6 +186,9 @@ while True:
 
     #input sanitization
     input_list = input_str.split()
+    if not input_list:
+        continue
+    
     command = input_list[0]
 
     if len(input_list) > 1:
