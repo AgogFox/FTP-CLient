@@ -47,6 +47,7 @@ def open_data_conn():
     #bind listing socket
     data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     data_sock.bind((host, 0))
+    data_sock.listen()
     port = data_sock.getsockname()[1] #get port number
 
     host_part = host.replace('.', ',')
@@ -55,6 +56,7 @@ def open_data_conn():
     port_2 = int(port[8:16], 2) #second part of the port
     send_ftp(cmd_sock, f"PORT {host_part},{port_1},{port_2}")
     print_resp(cmd_sock)
+    #TODO: add exception if fail
     return data_sock
 
 
@@ -95,8 +97,23 @@ def get(*args):
     return
 
 def ls(remote_dir = ""):
+    data_sock = open_data_conn()
     send_ftp(cmd_sock, f"NLST {remote_dir}")
-    print_resp(cmd_sock)
+
+    resp = cmd_sock.recv(1024).decode()
+
+    if resp.split()[0] != "150":
+        print(f"Something when wrong. {resp}")
+        return
+
+    print(resp, end='')
+    data_conn, data_addr = data_sock.accept()
+    while True:
+        data = data_conn.recv(1024).decode()
+        if data:
+            print(data, end='')
+        else:
+            break
     return
 
 def open(host_local = None, port = 21):
@@ -176,7 +193,7 @@ while True:
     if len(input_list) > 1:
         arg = input_list[1:]
     else:
-        arg = []
+        arg = ""
     
     if command in not_need_connection:
         match command:
