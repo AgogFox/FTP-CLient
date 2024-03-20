@@ -259,5 +259,16 @@ while True:
 
 
 
-#TODO:
-#   - keep login state
+#TODO: Command
+        #ascii
+        #binary
+        #cd
+        #delete
+        #get
+        #put
+        #pwd
+        #rename
+        #user
+
+#TODO: features
+        #count transfered data
