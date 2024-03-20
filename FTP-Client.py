@@ -190,6 +190,8 @@ def put(*args):
     return
 
 def pwd():
+    send_ftp(cmd_sock, f"XPWD")
+    print_resp(cmd_sock)
     return
 
 def rename(*args):
@@ -278,7 +280,7 @@ while True:
         #[ ] delete
         #[ ] get
         #[ ] put
-        #[ ] pwd
+        #[x] pwd
         #[ ] rename
         #[ ] user
 
