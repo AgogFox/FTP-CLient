@@ -74,6 +74,10 @@ def recv_data(data_sock):
         
     end_time = time.time() #time at the end of data transfer
     elapsed_time = end_time - start_time
+    if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
+        elapsed_time = 0.001
+    #!debug
+    print(size,start_time, end_time, elapsed_time)
     speed = size / (elapsed_time * 1000)
     print(f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec.")
     return
@@ -293,3 +297,4 @@ while True:
 #TODO: features
         #[x] count transfered data
         #[x] speed
+        #[x] fix inaccurate speed
