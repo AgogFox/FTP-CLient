@@ -100,6 +100,8 @@ def bye():
 
 
 def cd(remote_dir):
+    send_ftp(cmd_sock, f"CWD {remote_dir[0]}")
+    print_resp(cmd_sock)
     return
 
 def close():
@@ -284,7 +286,7 @@ while True:
         #[ ] ascii
         #[ ] binary
         #[x] bye
-        #[ ] cd
+        #[x] cd
         #[x] close
         #[ ] delete
         #[x] disconnect
