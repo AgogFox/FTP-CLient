@@ -98,7 +98,7 @@ def bye():
     exit()
 
 
-def cd(remote_dir):
+def cd(remote_dir, *argv):
     ftp_send_cmd(cmd_sock, f"CWD {remote_dir[0]}")
     print(get_resp(cmd_sock), end="")
     return
@@ -136,9 +136,13 @@ def ls(remote_dir = []):
     print(get_resp(cmd_sock), end="")
     return
 
-def open(host_local = None, port = 21):
+def open(host_local = None, port = 21, *argv):
     global cmd_sock
     global host
+
+    if argv:
+        print("Usage: open host name [port]")
+        return
 
     if cmd_sock: #check if already connect
         print(f"Already connected to {host}, use disconnect first.")
@@ -275,7 +279,7 @@ while True:
                 get(arg)
 
             case "ls":
-                ls(arg)
+                ls(*arg)
 
             case "put":
                 put(arg)
@@ -284,7 +288,7 @@ while True:
                 pwd()
 
             case "rename":
-                rename(arg)
+                rename(*arg)
 
             case "user":
                 user(arg)
