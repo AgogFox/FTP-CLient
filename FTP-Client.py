@@ -31,8 +31,8 @@ def send_ftp(socket, str): #format string and send to ftp server
     socket.sendall(f"{str}\r\n".encode())
     return
 
-def print_resp(socket):
-    print(socket.recv(1024).decode(), end='')
+def get_resp(socket):
+    return socket.recv(1024).decode()
 
 def close_sock():
     global cmd_sock
@@ -57,7 +57,7 @@ def open_data_conn():
     port_1 = int(port[0:8], 2) #first part of the port
     port_2 = int(port[8:16], 2) #second part of the port
     send_ftp(cmd_sock, f"PORT {host_part},{port_1},{port_2}")
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
     #TODO: add exception if fail
     return data_sock
 
@@ -91,7 +91,7 @@ def binary():
 def bye():
     try:
         send_ftp(cmd_sock, "QUIT")
-        print_resp(cmd_sock)
+        print(get_resp(cmd_sock), end="")
         close_sock()
     except:
         pass
@@ -100,7 +100,7 @@ def bye():
 
 def cd(remote_dir):
     send_ftp(cmd_sock, f"CWD {remote_dir[0]}")
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
     return
 
 def close():
@@ -110,7 +110,7 @@ def close():
         print("Not connected.")
         return;
 
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
     close_sock()
     return
 
@@ -127,13 +127,13 @@ def ls(remote_dir = []):
     else:
         send_ftp(cmd_sock, "NLST")
 
-    resp = cmd_sock.recv(1024).decode()
+    resp = get_resp(cmd_sock)
     print(resp, end='')
     if resp.split()[0] != "150": #If not starting data transfer
         return
 
     recv_data(data_sock)
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
     return
 
 def open(host_local = None, port = 21):
@@ -174,13 +174,13 @@ def open(host_local = None, port = 21):
         print(type(e).__name__, e.args)
         return
 
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
 
     #login
     user = input(f"User ({host_local}:(none)): ")
     send_ftp(cmd_sock, f"USER {user}")
 
-    resp = cmd_sock.recv(1024).decode() #respond for username input
+    resp = get_resp(cmd_sock )#respond for username input
     print(resp, end='')
     resp_code = resp.split()[0]
 
@@ -212,7 +212,7 @@ def put(*args):
 
 def pwd():
     send_ftp(cmd_sock, f"XPWD")
-    print_resp(cmd_sock)
+    print(get_resp(cmd_sock), end="")
     return
 
 def rename(*args):
