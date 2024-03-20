@@ -276,11 +276,17 @@ while True:
 #TODO: Command
         #[ ] ascii
         #[ ] binary
+        #[x] bye
         #[ ] cd
+        #[x] close
         #[ ] delete
+        #[x] disconnect
         #[ ] get
+        #[x] ls
+        #[x] open
         #[ ] put
         #[x] pwd
+        #[x] quit
         #[ ] rename
         #[ ] user
 
