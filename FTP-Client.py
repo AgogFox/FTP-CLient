@@ -221,7 +221,21 @@ def pwd():
     print(get_resp(cmd_sock), end="")
     return
 
-def rename(*args):
+def rename(from_name = "", to_name = "", *argv):
+    if not from_name: #no argument specify
+        from_name = input("From name")
+        to_name = input("To name")
+    elif not to_name: #only one argument specify
+        to_name = input("To name")
+
+    ftp_send_cmd(cmd_sock, f"RNFR {from_name}")
+    resp = get_resp(cmd_sock)
+    if resp.split()[0] == "350": #directory exists
+        print(resp, end="")
+        ftp_send_cmd(cmd_sock, f"RNTO {to_name}")
+        print(get_resp(cmd_sock), end="")
+    else:
+        print("Unexpected error, rename command")
     return
 
 def user(*args):
@@ -314,7 +328,7 @@ while True:
         #[ ] put
         #[x] pwd
         #[x] quit
-        #[ ] rename
+        #[x] rename
         #[ ] user
 
 #TODO: features
