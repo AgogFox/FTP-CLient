@@ -1,5 +1,6 @@
 import socket
 import time
+from getpass import getpass
 
 cmd_sock = None
 host = None
@@ -180,20 +181,33 @@ def open(host_local = None, port = 21):
     #login
     user = input(f"User ({host_local}:(none)): ")
     send_ftp(cmd_sock, f"USER {user}")
-    print_resp(cmd_sock)
-    password = input("Password: ")
-    cmd_sock.sendall(f"PASS {password}\r\n".encode())
 
-    login_respond = cmd_sock.recv(1024).decode()
-    respond_code = login_respond.split()[0]
+    resp = cmd_sock.recv(1024).decode() #respond for username input
+    print(resp, end='')
+    resp_code = resp.split()[0]
 
-    if respond_code == "230":
-        print(login_respond, end='')
-    elif respond_code == "331":
-        print(login_respond)
+    if resp_code == "501": #missing user argument
         print("Login failed.")
+        return
+    elif resp_code == "331":
+        password = getpass("Password: ")
+        cmd_sock.sendall(f"PASS {password}\r\n".encode())
+        resp = cmd_sock.recv(1024).decode()
+        resp_code = resp.split()[0]
+        if resp_code == "530":
+            print(resp, end="")
+            print("Login failed")
+            return
+        elif resp_code == "230":
+            print(resp, end="")
+            return
+        else:
+            print("unexpected error, password")
+            return
+    else:
+        print("unexpected error, user")
+        return
 
-    return
 
 def put(*args):
     return
