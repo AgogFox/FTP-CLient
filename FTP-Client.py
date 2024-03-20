@@ -119,9 +119,12 @@ def delete(remote_file):
 def get(*args):
     return
 
-def ls(remote_dir = ""):
+def ls(remote_dir = []):
     data_sock = open_data_conn()
-    send_ftp(cmd_sock, f"NLST {remote_dir}")
+    if remote_dir:
+        send_ftp(cmd_sock, f"NLST {remote_dir[0]}")
+    else:
+        send_ftp(cmd_sock, "NLST")
 
     resp = cmd_sock.recv(1024).decode()
     print(resp, end='')
