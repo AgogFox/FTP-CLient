@@ -163,7 +163,7 @@ def open(host_local = None, port = 21, *argv):
 
     #attemp establish connection
     try:
-        cmd_sock.connect((host_local, port))
+        cmd_sock.connect((host_local, int(port)))
     except ConnectionRefusedError:
         print("> ftp: connect :Connection refused")
         close_sock()
