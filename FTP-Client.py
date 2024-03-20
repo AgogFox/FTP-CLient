@@ -120,16 +120,18 @@ def delete(remote_file):
 def get(*args):
     return
 
-def ls(remote_dir = []):
+def ls(remote_dir = "", *argv):
     data_sock = ftp_open_data_conn()
-    if remote_dir:
-        ftp_send_cmd(cmd_sock, f"NLST {remote_dir[0]}")
-    else:
-        ftp_send_cmd(cmd_sock, "NLST")
 
+    ftp_send_cmd(cmd_sock, f"NLST {remote_dir}")
     resp = get_resp(cmd_sock)
+    resp_code = resp.split()[0]
     print(resp, end='')
-    if resp.split()[0] != "150": #If not starting data transfer
+
+    if resp_code == "550": #Couldn't open the file or directory
+        return
+    elif resp_code != "150":
+        print("Unexpected error, ls command")
         return
 
     recv_data(data_sock)
