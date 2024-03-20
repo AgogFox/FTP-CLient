@@ -27,7 +27,7 @@ need_connection = [
 ]
 
 
-def send_ftp(socket, str): #format string and send to ftp server
+def ftp_send_cmd(socket, str): #format string and send to ftp server
     socket.sendall(f"{str}\r\n".encode())
     return
 
@@ -44,7 +44,7 @@ def close_sock():
         cmd_sock = None
         return
 
-def open_data_conn():
+def ftp_open_data_conn():
     global host
     #bind listing socket
     data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -56,7 +56,7 @@ def open_data_conn():
     port = f"{port:016b}" #convert port number to bianry
     port_1 = int(port[0:8], 2) #first part of the port
     port_2 = int(port[8:16], 2) #second part of the port
-    send_ftp(cmd_sock, f"PORT {host_part},{port_1},{port_2}")
+    ftp_send_cmd(cmd_sock, f"PORT {host_part},{port_1},{port_2}")
     print(get_resp(cmd_sock), end="")
     #TODO: add exception if fail
     return data_sock
@@ -90,7 +90,7 @@ def binary():
 
 def bye():
     try:
-        send_ftp(cmd_sock, "QUIT")
+        ftp_send_cmd(cmd_sock, "QUIT")
         print(get_resp(cmd_sock), end="")
         close_sock()
     except:
@@ -99,13 +99,13 @@ def bye():
 
 
 def cd(remote_dir):
-    send_ftp(cmd_sock, f"CWD {remote_dir[0]}")
+    ftp_send_cmd(cmd_sock, f"CWD {remote_dir[0]}")
     print(get_resp(cmd_sock), end="")
     return
 
 def close():
     try:
-        send_ftp(cmd_sock, "QUIT")
+        ftp_send_cmd(cmd_sock, "QUIT")
     except:
         print("Not connected.")
         return;
@@ -121,11 +121,11 @@ def get(*args):
     return
 
 def ls(remote_dir = []):
-    data_sock = open_data_conn()
+    data_sock = ftp_open_data_conn()
     if remote_dir:
-        send_ftp(cmd_sock, f"NLST {remote_dir[0]}")
+        ftp_send_cmd(cmd_sock, f"NLST {remote_dir[0]}")
     else:
-        send_ftp(cmd_sock, "NLST")
+        ftp_send_cmd(cmd_sock, "NLST")
 
     resp = get_resp(cmd_sock)
     print(resp, end='')
@@ -178,7 +178,7 @@ def open(host_local = None, port = 21):
 
     #login
     user = input(f"User ({host_local}:(none)): ")
-    send_ftp(cmd_sock, f"USER {user}")
+    ftp_send_cmd(cmd_sock, f"USER {user}")
 
     resp = get_resp(cmd_sock )#respond for username input
     print(resp, end='')
@@ -211,7 +211,7 @@ def put(*args):
     return
 
 def pwd():
-    send_ftp(cmd_sock, f"XPWD")
+    ftp_send_cmd(cmd_sock, f"XPWD")
     print(get_resp(cmd_sock), end="")
     return
 
