@@ -1,4 +1,5 @@
 import socket
+import time
 
 cmd_sock = None
 host = None
@@ -59,6 +60,24 @@ def open_data_conn():
     #TODO: add exception if fail
     return data_sock
 
+def recv_data(data_sock):
+    data_conn, data_addr = data_sock.accept()
+    size = 0
+    start_time = time.time() #time at the start of data transfer
+    while True:
+        data = data_conn.recv(1024)
+        if data:
+            print(data.decode(), end='')
+            size += len(data)
+        else:
+            break
+        
+    end_time = time.time() #time at the end of data transfer
+    elapsed_time = end_time - start_time
+    speed = size / (elapsed_time * 1000)
+    print(f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec.")
+    return
+
 
 def ascii():
     return
@@ -101,19 +120,12 @@ def ls(remote_dir = ""):
     send_ftp(cmd_sock, f"NLST {remote_dir}")
 
     resp = cmd_sock.recv(1024).decode()
-
-    if resp.split()[0] != "150":
-        print(f"Something when wrong. {resp}")
+    print(resp, end='')
+    if resp.split()[0] != "150": #If not starting data transfer
         return
 
-    print(resp, end='')
-    data_conn, data_addr = data_sock.accept()
-    while True:
-        data = data_conn.recv(1024).decode()
-        if data:
-            print(data, end='')
-        else:
-            break
+    recv_data(data_sock)
+    print_resp(cmd_sock)
     return
 
 def open(host_local = None, port = 21):
@@ -260,15 +272,16 @@ while True:
 
 
 #TODO: Command
-        #ascii
-        #binary
-        #cd
-        #delete
-        #get
-        #put
-        #pwd
-        #rename
-        #user
+        #[ ] ascii
+        #[ ] binary
+        #[ ] cd
+        #[ ] delete
+        #[ ] get
+        #[ ] put
+        #[ ] pwd
+        #[ ] rename
+        #[ ] user
 
 #TODO: features
-        #count transfered data
+        #[x] count transfered data
+        #[x] speed
