@@ -84,9 +84,13 @@ def recv_data(data_sock):
 
 
 def ascii():
+    ftp_send_cmd(cmd_sock, "TYPE A")
+    print(get_resp(cmd_sock), end="")
     return
 
 def binary():
+    ftp_send_cmd(cmd_sock, "TYPE I")
+    print(get_resp(cmd_sock), end="")
     return
 
 def bye():
@@ -317,8 +321,8 @@ while True:
 
 
 #TODO: Command
-        #[ ] ascii
-        #[ ] binary
+        #[x] ascii
+        #[x] binary
         #[x] bye
         #[x] cd
         #[x] close
