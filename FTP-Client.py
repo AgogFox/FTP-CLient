@@ -65,11 +65,12 @@ def recv_data(data_sock):
     data_conn, data_addr = data_sock.accept()
     size = 0
     start_time = time.time() #time at the start of data transfer
+    data = ""
     while True:
-        data = data_conn.recv(1024)
-        if data:
-            print(data.decode(), end='')
-            size += len(data)
+        data_part = data_conn.recv(1024)
+        if data_part:
+            data += data_part.decode()
+            size += len(data_part)
         else:
             break
         
@@ -78,8 +79,8 @@ def recv_data(data_sock):
     if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
         elapsed_time = 0.001
     speed = size / (elapsed_time * 1000)
-    print(f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec.")
-    return
+    time_speed = f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
+    return data, time_speed
 
 
 def ascii():
@@ -134,8 +135,9 @@ def ls(remote_dir = "", *argv):
         print("Unexpected error, ls command")
         return
 
-    recv_data(data_sock)
-    print(get_resp(cmd_sock), end="")
+    data, speed = recv_data(data_sock)
+    print(data, end="")
+    print(speed)
     return
 
 def open(host_local = None, port = 21, *argv):
@@ -335,3 +337,5 @@ while True:
         #[x] count transfered data
         #[x] speed
         #[x] fix inaccurate speed
+        #[x] fix receive data function
+        #[ ] fix ls function after fix the above
