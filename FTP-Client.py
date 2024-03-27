@@ -34,7 +34,7 @@ def ftp_send_cmd(socket, str): #format string and send to ftp server
 def get_resp(socket):
     return socket.recv(1024).decode()
 
-def close_sock():
+def close_cmd_sock():
     global cmd_sock
     try:
         cmd_sock.close()
@@ -97,7 +97,7 @@ def bye():
     try:
         ftp_send_cmd(cmd_sock, "QUIT")
         print(get_resp(cmd_sock), end="")
-        close_sock()
+        close_cmd_sock()
     except:
         pass
     exit()
@@ -116,7 +116,7 @@ def close():
         return;
 
     print(get_resp(cmd_sock), end="")
-    close_sock()
+    close_cmd_sock()
     return
 
 def delete(remote_file):
@@ -144,7 +144,7 @@ def ls(remote_dir = "", *argv):
     print(speed)
     return
 
-def open(host_local = None, port = 21, *argv):
+def ftp_open(host_local = None, port = 21, *argv):
     global cmd_sock
     global host
 
@@ -172,15 +172,15 @@ def open(host_local = None, port = 21, *argv):
         cmd_sock.connect((host_local, int(port)))
     except ConnectionRefusedError:
         print("> ftp: connect :Connection refused")
-        close_sock()
+        close_cmd_sock()
         return
     except socket.timeout:
         print("> ftp: connect :Connection timed out")
-        close_sock()
+        close_cmd_sock()
         return
     except socket.gaierror:
         print(f"Unknown host {host_local}.")
-        close_sock()
+        close_cmd_sock()
         return
     except Exception as e:
         print(type(e).__name__, e.args)
@@ -268,7 +268,7 @@ while True:
                 bye()
 
             case "open":
-                open(*arg)
+                ftp_open(*arg)
 
             case "quit":
                 bye()
@@ -342,4 +342,5 @@ while True:
         #[x] speed
         #[x] fix inaccurate speed
         #[x] fix receive data function
-        #[ ] fix ls function after fix the above
+        #[x] fix ls function after fix the above
+        #[ ] change recv_data func to work with file too
