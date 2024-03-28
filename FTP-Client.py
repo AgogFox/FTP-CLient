@@ -27,11 +27,11 @@ need_connection = [
 ]
 
 
-def ftp_send_cmd(socket, str): #format string and send to ftp server
+def ftp_send_cmd(socket: socket, str: str): #format string and send to ftp server
     socket.sendall(f"{str}\r\n".encode())
     return
 
-def get_resp(socket):
+def get_resp(socket: socket) -> str:
     return socket.recv(1024).decode()
 
 def close_cmd_sock():
@@ -44,7 +44,7 @@ def close_cmd_sock():
         cmd_sock = None
         return
 
-def ftp_open_data_conn():
+def ftp_open_data_conn() -> socket:
     global host
     #bind listing socket
     data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -61,7 +61,7 @@ def ftp_open_data_conn():
     #TODO: add exception if fail
     return data_sock
 
-def recv_data(data_sock):
+def recv_data(data_sock: socket):
     data_conn, data_addr = data_sock.accept()
     size = 0
     start_time = time.time() #time at the start of data transfer
@@ -103,7 +103,7 @@ def bye():
     exit()
 
 
-def cd(remote_dir, *argv):
+def cd(remote_dir: str, *argv):
     ftp_send_cmd(cmd_sock, f"CWD {remote_dir[0]}")
     print(get_resp(cmd_sock), end="")
     return
@@ -119,13 +119,13 @@ def close():
     close_cmd_sock()
     return
 
-def delete(remote_file):
+def delete(remote_file: str):
     return
 
 def get(*args):
     return
 
-def ls(remote_dir = "", *argv):
+def ls(remote_dir: str = "", *argv) -> None:
     data_sock = ftp_open_data_conn()
 
     ftp_send_cmd(cmd_sock, f"NLST {remote_dir}")
@@ -144,7 +144,7 @@ def ls(remote_dir = "", *argv):
     print(speed)
     return
 
-def ftp_open(host_local = None, port = 21, *argv):
+def ftp_open(host_local: str = None, port: str = "21", *argv):
     global cmd_sock
     global host
 
@@ -227,7 +227,7 @@ def pwd():
     print(get_resp(cmd_sock), end="")
     return
 
-def rename(from_name = "", to_name = "", *argv):
+def rename(from_name: str = "", to_name: str = "", *argv):
     if not from_name: #no argument specify
         from_name = input("From name")
         to_name = input("To name")
