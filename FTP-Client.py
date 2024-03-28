@@ -132,7 +132,9 @@ def close():
     close_cmd_sock()
     return
 
-def delete(remote_file: str):
+def delete(remote_file: str, *argv):
+    ftp_send_cmd(cmd_sock, f"DELE {remote_file}")
+    print(get_resp(cmd_sock), end="")
     return
 
 def get(*args):
@@ -362,3 +364,4 @@ while True:
         #[ ] change recv_data func to work with file too
         #[ ] make send_data func.
         #[ ] fix add another print respond for 150 operation successful
+        #[ ] add new line when enter password
