@@ -104,7 +104,7 @@ def bye():
 
 
 def cd(remote_dir: str, *argv):
-    ftp_send_cmd(cmd_sock, f"CWD {remote_dir[0]}")
+    ftp_send_cmd(cmd_sock, f"CWD {remote_dir}")
     print(get_resp(cmd_sock), end="")
     return
 
@@ -286,25 +286,25 @@ while True:
                 binary()
             
             case "cd":
-                cd(arg)
+                cd(*arg)
 
             case "close":
                 close()
 
             case "delete":
-                delete(arg)
+                delete(*arg)
 
             case "disconnect": # disconnect = close
                 close()
 
             case "get":
-                get(arg)
+                get(*arg)
 
             case "ls":
                 ls(*arg)
 
             case "put":
-                put(arg)
+                put(*arg)
 
             case "pwd":
                 pwd()
@@ -313,7 +313,7 @@ while True:
                 rename(*arg)
 
             case "user":
-                user(arg)
+                user(*arg)
 
     else:
         print("Invalid command.")
