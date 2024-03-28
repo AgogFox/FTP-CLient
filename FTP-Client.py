@@ -61,10 +61,27 @@ def ftp_open_data_conn() -> socket:
     #TODO: add exception if fail
     return data_sock
 
+def measure(func):
+    def wrapper(*args, **kwargs):
+        size = 0
+        start_time = time.time()
+
+        data, size = func(*args, **kwargs)
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
+            elapsed_time = 0.0001
+        
+        speed = size / (elapsed_time * 1000)
+        status = f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
+        return data, status
+    return wrapper
+
+@measure
 def recv_data(data_sock: socket):
     data_conn, data_addr = data_sock.accept()
     size = 0
-    start_time = time.time() #time at the start of data transfer
     data = ""
     while True:
         data_part = data_conn.recv(1024)
@@ -73,14 +90,11 @@ def recv_data(data_sock: socket):
             size += len(data_part)
         else:
             break
-        
-    end_time = time.time() #time at the end of data transfer
-    elapsed_time = end_time - start_time
-    if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
-        elapsed_time = 0.001
-    speed = size / (elapsed_time * 1000)
-    time_speed = f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
-    return data, time_speed
+    return data, size
+
+def send_data(data_sock):
+    data_conn, data_addr = data_sock.accept()
+
 
 
 def ascii():
@@ -101,7 +115,6 @@ def bye():
     except:
         pass
     exit()
-
 
 def cd(remote_dir: str, *argv):
     ftp_send_cmd(cmd_sock, f"CWD {remote_dir}")
@@ -139,9 +152,11 @@ def ls(remote_dir: str = "", *argv) -> None:
         print("Unexpected error, ls command")
         return
 
-    data, speed = recv_data(data_sock)
+    data, status = recv_data(data_sock)
     print(data, end="")
-    print(speed)
+    print(get_resp(cmd_sock), end="") #226 Operation successful
+    #TODO: add exception
+    print(status)
     return
 
 def ftp_open(host_local: str = None, port: str = "21", *argv):
@@ -247,6 +262,7 @@ def rename(from_name: str = "", to_name: str = "", *argv):
 def user(*args):
     return
 
+
 while True:
     input_str = input("ftp> ")
 
@@ -340,7 +356,9 @@ while True:
 #TODO: features
         #[x] count transfered data
         #[x] speed
-        #[x] fix inaccurate speed
+        #[ ] fix inaccurate speed
         #[x] fix receive data function
         #[x] fix ls function after fix the above
         #[ ] change recv_data func to work with file too
+        #[ ] make send_data func.
+        #[ ] fix add another print respond for 150 operation successful
