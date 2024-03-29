@@ -67,16 +67,16 @@ def measure(func):
         size = 0
         start_time = time.time()
 
-        data, size = func(*args, **kwargs)
+        result = func(*args, **kwargs)
 
         end_time = time.time()
         elapsed_time = end_time - start_time
         if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
             elapsed_time = 0.0001
         
-        speed = size / (elapsed_time * 1000)
+        speed = result[0] / (elapsed_time * 1000) #result[0] = size of data
         status = f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
-        return data, status
+        return status, result
     return wrapper
 
 @measure
@@ -91,7 +91,7 @@ def recv_data(data_sock: socket):
             size += len(data_part)
         else:
             break
-    return data, size
+    return size, data
 
 def send_data(data_sock):
     data_conn, data_addr = data_sock.accept()
@@ -155,8 +155,8 @@ def ls(remote_dir: str = "", *argv) -> None:
         print("Unexpected error, ls command")
         return
 
-    data, status = recv_data(data_sock)
-    print(data, end="")
+    status, result = recv_data(data_sock)
+    print(result[1], end="")
     print(get_resp(cmd_sock), end="") #226 Operation successful
     #TODO: add exception
     print(status)
