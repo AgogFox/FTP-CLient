@@ -133,8 +133,15 @@ def close():
     close_cmd_sock()
     return
 
-def delete(remote_file: str, *argv):
-    ftp_send_cmd(cmd_sock, f"DELE {remote_file}")
+def delete(remote_fname: str = "", *argv):
+    if not remote_fname:
+        remote_fname = input("Remote file ")
+    
+    if not remote_fname:
+        print("delete remote file.")
+        return
+
+    ftp_send_cmd(cmd_sock, f"DELE {remote_fname}")
     print(get_resp(cmd_sock), end="")
     return
 
