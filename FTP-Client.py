@@ -258,23 +258,30 @@ def ftp_open(host_local: str = None, port: str = "21", *argv):
 def put(local_fname: str = "", *argv):
     if not local_fname:
         local_fname = input("Local file ")
-    
-    if not local_fname:
-        print("Local file put: remote file.")
-        return
-    
-    if argv:
-        remote_fname = argv[0]
+        if not local_fname:
+            print("Local file put: remote file.")
+            return
+        
+        remote_fname = input("Remote file ")
+        if not remote_fname:
+            remote_fname = local_fname
     else:
-        remote_fname = local_fname
+        if argv:
+            remote_fname = argv[0]
+        else:
+            remote_fname = local_fname
     
+    try:
+        file = open(local_fname, "rb")
+    except FileNotFoundError:
+        print(f"{local_fname}: File not found")
+        return
+
     data_sock = ftp_open_data_conn()
     ftp_send_cmd(cmd_sock, f"STOR {remote_fname}")
     print(get_resp(cmd_sock), end="")
-
-    with open(local_fname, 'rb') as f:
-        status, result = send_data(data_sock, f)
-    
+    status, result = send_data(data_sock, file)
+    file.close()
     data_sock.close()
     print(get_resp(cmd_sock), end="")
     print(status)
@@ -406,3 +413,6 @@ while True:
         #[x] make send_data func.
         #[x] fix add another print respond for 150 starting data transfer
         #[x] add new line when enter password
+        #[ ] get condition for various combination of input
+        #[x] get condition for various combination of input
+        #[x] exception for file not found in put command
