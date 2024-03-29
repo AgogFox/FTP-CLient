@@ -64,7 +64,6 @@ def ftp_open_data_conn() -> socket:
 
 def measure(func):
     def wrapper(*args, **kwargs):
-        size = 0
         start_time = time.time()
 
         result = func(*args, **kwargs)
@@ -75,7 +74,7 @@ def measure(func):
             elapsed_time = 0.0001
         
         speed = result[0] / (elapsed_time * 1000) #result[0] = size of data
-        status = f"ftp: {size} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
+        status = f"ftp: {result[0]} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
         return status, result
     return wrapper
 
@@ -93,8 +92,20 @@ def recv_data(data_sock: socket):
             break
     return size, data
 
-def send_data(data_sock):
+@measure
+def send_data(data_sock, file):
     data_conn, data_addr = data_sock.accept()
+    size = 0
+
+    while True:
+        bytes_read = file.read(1024)
+        if not bytes_read:
+            break
+        size += len(bytes_read)
+        data_conn.sendall(bytes_read)
+    
+    return (size,) #? will this work when indexing in measure func?
+
 
 
 
@@ -244,8 +255,29 @@ def ftp_open(host_local: str = None, port: str = "21", *argv):
         print("unexpected error, user")
         return
 
+def put(local_fname: str = "", *argv):
+    if not local_fname:
+        local_fname = input("Local file ")
+    
+    if not local_fname:
+        print("Local file put: remote file.")
+        return
+    
+    if argv:
+        remote_fname = argv[0]
+    else:
+        remote_fname = local_fname
+    
+    data_sock = ftp_open_data_conn()
+    ftp_send_cmd(cmd_sock, f"STOR {remote_fname}")
+    print(get_resp(cmd_sock), end="")
 
-def put(*args):
+    with open(local_fname, 'rb') as f:
+        status, result = send_data(data_sock, f)
+    
+    data_sock.close()
+    print(get_resp(cmd_sock), end="")
+    print(status)
     return
 
 def pwd():
@@ -358,7 +390,7 @@ while True:
         #[ ] get
         #[x] ls
         #[x] open
-        #[ ] put
+        #[x] put
         #[x] pwd
         #[x] quit
         #[x] rename
@@ -370,7 +402,7 @@ while True:
         #[x] fix inaccurate speed
         #[x] fix receive data function
         #[x] fix ls function after fix the above
-        #[ ] change recv_data func to work with file too
-        #[ ] make send_data func.
-        #[ ] fix add another print respond for 150 operation successful
-        #[ ] add new line when enter password
+        #[x] change recv_data func to work with file too
+        #[x] make send_data func.
+        #[x] fix add another print respond for 150 starting data transfer
+        #[x] add new line when enter password
