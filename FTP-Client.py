@@ -108,7 +108,6 @@ def send_data(data_sock, file):
 
 
 
-
 def ascii():
     ftp_send_cmd(cmd_sock, "TYPE A")
     print(get_resp(cmd_sock), end="")
@@ -156,7 +155,42 @@ def delete(remote_fname: str = "", *argv):
     print(get_resp(cmd_sock), end="")
     return
 
-def get(*args):
+def get(remote_fname: str = "", *argv):
+    if not remote_fname:
+        remote_fname = input("Remote file ")
+        if not remote_fname:
+            print("Remote file get [ local-file ].")
+            return
+        
+        local_fname = input("Local file ")
+        if not local_fname:
+            local_fname = remote_fname
+    else:
+        if argv:
+            local_fname = argv[0]
+        else:
+            local_fname = remote_fname
+
+    data_sock = ftp_open_data_conn()
+    ftp_send_cmd(cmd_sock, f"RETR {remote_fname}")
+    resp = get_resp(cmd_sock)
+    resp_phrase = resp.split()[1]
+
+    #hack for dealing with \r\n\r\n in "This function is not supported on this system.\r\n\r\n"
+    if resp_phrase == "This":
+        print(resp[:-2], end="") #[:-2] because there're two \r\n in respond
+        return
+    elif resp_phrase == "Permission":
+        print(resp, end="")
+        return
+
+    status, result = recv_data(data_sock)
+    file = open(local_fname, 'w')
+    file.write(result[1])
+    file.close()
+    print(get_resp(cmd_sock), end="")
+    print(status)
+
     return
 
 def ls(remote_dir: str = "", *argv) -> None:
@@ -394,7 +428,7 @@ while True:
         #[x] close
         #[x] delete
         #[x] disconnect
-        #[ ] get
+        #[x] get
         #[x] ls
         #[x] open
         #[x] put
@@ -413,6 +447,6 @@ while True:
         #[x] make send_data func.
         #[x] fix add another print respond for 150 starting data transfer
         #[x] add new line when enter password
-        #[ ] get condition for various combination of input
+        #[x] get condition for various combination of input
         #[x] get condition for various combination of input
         #[x] exception for file not found in put command
