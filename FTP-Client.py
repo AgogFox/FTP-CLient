@@ -219,6 +219,7 @@ def ftp_open(host_local: str = None, port: str = "21", *argv):
         return
     elif resp_code == "331":
         password = getpass("Password: ")
+        print("")
         cmd_sock.sendall(f"PASS {password}\r\n".encode())
         resp = cmd_sock.recv(1024).decode()
         resp_code = resp.split()[0]
