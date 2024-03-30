@@ -90,7 +90,7 @@ def recv_data(data_sock: socket):
             size += len(data_part)
         else:
             break
-    return size, data
+    return size + 3, data #Plus 3 because of IDK
 
 @measure
 def send_data(data_sock, file):
@@ -104,7 +104,7 @@ def send_data(data_sock, file):
         size += len(bytes_read)
         data_conn.sendall(bytes_read)
     
-    return (size,) #? will this work when indexing in measure func?
+    return (size + 3,) #Plus 3 because of IDK
 
 
 
