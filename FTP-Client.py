@@ -187,9 +187,11 @@ def get(remote_fname: str = "", local_fname: str = "", *argv):
     file.write(result[1])
     file.close()
     print(get_resp(cmd_sock), end="")
-    print(status)
-
-    return
+    if result[0] == 3:
+        return
+    else:
+        print(status)
+        return
 
 def ls(remote_dir: str = "", *argv) -> None:
     data_sock = ftp_open_data_conn()
@@ -314,8 +316,11 @@ def put(local_fname: str = "", remote_fname: str = "", *argv):
     file.close()
     data_sock.close()
     print(get_resp(cmd_sock), end="")
-    print(status)
-    return
+    if result[0] == 3:
+        return
+    else:
+        print(status)
+        return
 
 def pwd():
     ftp_send_cmd(cmd_sock, f"XPWD")
@@ -458,7 +463,7 @@ while True:
         #[x] pwd
         #[x] quit
         #[x] rename
-        #[ ] user
+        #[x] user
 
 #TODO: features
         #[x] count transfered data
