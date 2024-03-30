@@ -155,7 +155,7 @@ def delete(remote_fname: str = "", *argv):
     print(get_resp(cmd_sock), end="")
     return
 
-def get(remote_fname: str = "", *argv):
+def get(remote_fname: str = "", local_fname: str = "", *argv):
     if not remote_fname:
         remote_fname = input("Remote file ")
         if not remote_fname:
@@ -166,9 +166,7 @@ def get(remote_fname: str = "", *argv):
         if not local_fname:
             local_fname = remote_fname
     else:
-        if argv:
-            local_fname = argv[0]
-        else:
+        if not local_fname:
             local_fname = remote_fname
 
     data_sock = ftp_open_data_conn()
@@ -289,7 +287,7 @@ def ftp_open(host_local: str = None, port: str = "21", *argv):
         print("unexpected error, user")
         return
 
-def put(local_fname: str = "", *argv):
+def put(local_fname: str = "", remote_fname: str = "", *argv):
     if not local_fname:
         local_fname = input("Local file ")
         if not local_fname:
@@ -300,9 +298,7 @@ def put(local_fname: str = "", *argv):
         if not remote_fname:
             remote_fname = local_fname
     else:
-        if argv:
-            remote_fname = argv[0]
-        else:
+        if not remote_fname:
             remote_fname = local_fname
     
     try:
