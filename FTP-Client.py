@@ -339,8 +339,35 @@ def rename(from_name: str = "", to_name: str = "", *argv):
         print("Unexpected error, rename command")
     return
 
-def user(*args):
-    return
+def user(user: str = "", password: str ="", *argv):
+    if not user:
+        user = input("Username: ")
+        if not user:
+            print("Usage: user username [password] [account]")
+            return
+
+    ftp_send_cmd(cmd_sock, f"USER {user}")
+    print(get_resp(cmd_sock), end="")
+
+    if not password:
+        password = input("Password: ")
+    
+    ftp_send_cmd(cmd_sock, f"PASS {password}")
+
+    resp = get_resp(cmd_sock)
+    resp_code = resp.split()[0]
+
+    if resp_code == "530": #530 Login incorrect.
+        print(resp, end="")
+        print("Login failed")
+        return
+    elif resp_code == "230": #Login successful
+        print(resp, end="")
+        return
+    else:
+        print("unexpected error, password")
+        return
+
 
 
 while True:
