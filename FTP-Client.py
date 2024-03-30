@@ -270,14 +270,14 @@ def ftp_open(host_local: str = None, port: str = "21", *argv):
     elif resp_code == "331":
         password = getpass("Password: ")
         print("")
-        cmd_sock.sendall(f"PASS {password}\r\n".encode())
-        resp = cmd_sock.recv(1024).decode()
+        ftp_send_cmd(cmd_sock, f"PASS {password}")
+        resp = get_resp(cmd_sock)
         resp_code = resp.split()[0]
-        if resp_code == "530":
+        if resp_code == "530": #530 Login incorrect.
             print(resp, end="")
             print("Login failed")
             return
-        elif resp_code == "230":
+        elif resp_code == "230": #Login successful
             print(resp, end="")
             return
         else:
