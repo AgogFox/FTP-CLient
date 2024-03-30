@@ -62,23 +62,25 @@ def ftp_open_data_conn() -> socket:
     #TODO: add exception if fail
     return data_sock
 
-def measure(func):
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
+def measure(text: str):
+    def inner(func):
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
 
-        result = func(*args, **kwargs)
+            result = func(*args, **kwargs)
 
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
-            elapsed_time = 0.0001
-        
-        speed = result[0] / (elapsed_time * 1000) #result[0] = size of data
-        status = f"ftp: {result[0]} bytes received in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
-        return status, result
-    return wrapper
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            if elapsed_time == 0: #prevent very fast transfer(start_time = end_time) from causeing devide by 0
+                elapsed_time = 0.0001
+            
+            speed = result[0] / (elapsed_time * 1000) #result[0] = size of data
+            status = f"ftp: {result[0]} bytes {text} in {elapsed_time:.3f}Seconds {speed:.2f}Kbytes/sec."
+            return status, result
+        return wrapper
+    return inner
 
-@measure
+@measure("received")
 def recv_data(data_sock: socket):
     data_conn, data_addr = data_sock.accept()
     size = 0
@@ -92,7 +94,7 @@ def recv_data(data_sock: socket):
             break
     return size + 3, data #Plus 3 because of IDK
 
-@measure
+@measure("sent")
 def send_data(data_sock, file):
     data_conn, data_addr = data_sock.accept()
     size = 0
