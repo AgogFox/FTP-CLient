@@ -33,6 +33,7 @@ def ftp_send_cmd(socket: socket, str: str): #format string and send to ftp serve
     return
 
 def get_resp(socket: socket) -> str:
+    #TODO: return status code
     return socket.recv(1024).decode().strip()
 
 def close_cmd_sock():
