@@ -294,6 +294,9 @@ def put(local_file: str = "", remote_file: str = "", *argv):
     except FileNotFoundError:
         print(f"{local_file}: File not found")
         return
+    except PermissionError:
+        print(f"Error opening local file {local_file}.")
+        return
 
     data_sock = ftp_open_data_conn()
     ftp_send_cmd(cmd_sock, f"STOR {remote_file}")
